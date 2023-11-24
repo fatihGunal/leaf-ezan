@@ -14,6 +14,7 @@ const HomeScreen = ({navigation}: {navigation: any}) => {
     const [data, setData] = useState<any | undefined>(undefined)
     const [showDate, setShowDate] = useState();
     const [remainingTime, setRemainingTime] = useState<string | null>(null);
+    const [remainingTimeText, setRemainingTimText] = useState<string | null>(null);
 
     let dateCheck: boolean = false
 
@@ -43,7 +44,7 @@ const HomeScreen = ({navigation}: {navigation: any}) => {
                 .then((json) => {
                     setData(json.data)
                     setShowDate(json.data.date.readable)
-                    setRemainingTime(getNextPrayerTime(json.data.timings));
+                    getNextPrayerTime(json.data.timings)
                 })
                 .catch((error) => console.error(error))
             })
@@ -56,48 +57,8 @@ const HomeScreen = ({navigation}: {navigation: any}) => {
 
     }, [])
 
-    // const getNextPrayerTime = (prayerData: any): string | null => {
-        //   MAJOR REFACTORING NEEDED -------------
-    //     const allowed = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']
-    //     const filtered = Object.keys(prayerData || {})
-    //         .filter(key => allowed.includes(key))
-    //         .reduce((obj, key) => {
-    //             obj[key] = prayerData[key]
-    //         return obj
-    //     }, {} as any)
-        
-    //     const now = moment(moment().format(), 'hh:mm:ss')
 
-    //     let nextPrayerTime: string = '';
-    //     let testDate = new Date()
-    //     testDate.setHours(18)
-    //     testDate.setMinutes(0)
-
-    //     // let closestTime: number = now.valueOf()
-    //     let closestTimestamp: number = testDate.valueOf()
-
-
-    //     Object.entries(filtered).forEach(([key, value]: [string, any], index) => {
-    //         const inputValue = moment(value, 'hh:mm:ss')
-    //         const diff = moment(inputValue).diff(moment(testDate))
-
-    //         if (diff < 0) {
-    //         } else if (closestTimestamp < diff) {
-    //         } else {
-    //             nextPrayerTime = key
-    //             closestTimestamp = diff
-    //         }
-    //     });
-
-    //     var tempTime = moment.duration(closestTimestamp)
-    //     var closestTimeReadable = tempTime.hours() + ':' + tempTime.minutes() + ':' + tempTime.seconds()
-        
-    //     console.log(closestTimeReadable)
-    //     console.log(nextPrayerTime)
-    //     return filtered[nextPrayerTime];
-    // };
-
-    const getNextPrayerTime = (prayerData: PrayerData): string | null => {
+    const getNextPrayerTime = (prayerData: PrayerData) => {
         const allowedPrayers = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
         const filteredPrayerData: PrayerData = Object.keys(prayerData || {})
           .filter(key => allowedPrayers.includes(key))
@@ -107,6 +68,7 @@ const HomeScreen = ({navigation}: {navigation: any}) => {
           }, {} as PrayerData);
       
         const now = moment();
+        // Test object
         // const now = new Date();
         // now.setHours(13)
         // now.setMinutes(0)
@@ -127,11 +89,14 @@ const HomeScreen = ({navigation}: {navigation: any}) => {
         }
       
         if (nextPrayerTime !== null) {
-          const closestTimeReadable = moment.utc(closestTimestamp).format('HH:mm:ss');
+            const closestTimeReadable = moment.utc(closestTimestamp).format('HH:mm:ss');
+            setRemainingTime(closestTimeReadable);
+            setRemainingTimText(nextPrayerTime);
             return closestTimeReadable;
         } else {
           console.log('No upcoming prayer time found.');
-          return 'well done!';
+          setRemainingTime('-- -- --');
+          setRemainingTimText('Imsak');
         }
     };
 
@@ -140,7 +105,7 @@ const HomeScreen = ({navigation}: {navigation: any}) => {
     <View style={styles.container}>
         <View style={styles.header}>
             <View>
-                <TimeIndicator name='Kalan Sure' value={remainingTime}/>            
+                <TimeIndicator name='Kalan Sure' value={remainingTime} timeText={remainingTimeText}/>            
             </View>
             <View>
                 <Pressable style={styles.button} onPress={onPressDate}>
@@ -186,11 +151,11 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         backgroundColor: Colors.background,
-        marginTop: 45
+        marginTop: 30
     },
     inner_container: {
         width: '100%',
-        flex: 2.4,
+        flex: 2,
         backgroundColor: Colors.containerbackground,
         borderTopStartRadius: 50,
         borderTopEndRadius: 50,
@@ -207,17 +172,12 @@ const styles = StyleSheet.create({
         margin: 5
     },
     button: {
-        backgroundColor: Colors.containerbackground,
         color: Colors.values,
-        padding: 10,
-        borderRadius: 50
     },
     button_text: {
         color: Colors.values,
         fontWeight: 'bold',
-        fontSize: 20,
-        marginLeft: 20,
-        marginRight: 20
+        fontSize: 25,
     }
 })
 
