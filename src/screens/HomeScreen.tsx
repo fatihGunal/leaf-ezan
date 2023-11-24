@@ -5,7 +5,6 @@ import Colors from '../util/Colors'
 import PrayerTime from '../components/PrayerTime'
 import GetLocation from 'react-native-get-location';
 import moment from 'moment'
-import { run } from 'jest'
 
 const BASE_URL_ADHAN = 'http://api.aladhan.com/v1/timingsByCity?';
 const BASE_URL_GEO = 'https://nominatim.openstreetmap.org/reverse?';
